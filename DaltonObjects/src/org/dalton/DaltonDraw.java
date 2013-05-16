@@ -1,11 +1,17 @@
 package org.dalton;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
@@ -24,7 +30,6 @@ import javax.imageio.ImageIO;
  * @author cforster
  *
  *
- *	TODO: remove DaltonColor
  *  TODO: let repaint be refresh, with optional delay parameter for animations
  *
  */
@@ -48,13 +53,13 @@ public class DaltonDraw extends Component {
 			int x = s.getBounds().x + (s.getBounds().width/2);
 			int y =s.getBounds().y + (s.getBounds().height/2);
 			g2.rotate(Math.toRadians((Double)drawme[1]), x, y);
-			g2.setColor(((DaltonColor)drawme[2]).getColor());
+			g2.setColor((Color) drawme[2]);
 			g2.fill((Shape)drawme[0]);
 			g2.rotate(-Math.toRadians((Double)drawme[1]), x, y);
 		}
 		for(Object[] writeme: stringList) {
 			g2.setFont(new Font("Serif", Font.PLAIN, (Integer)writeme[3]));
-			g2.setColor(((DaltonColor)writeme[4]).getColor());
+			g2.setColor((Color)writeme[4]);
 			g2.drawString((String)writeme[0], (Integer)writeme[1], (Integer)writeme[2]);
 		}
 		for(Object[] imageme: imageList) {
@@ -90,7 +95,7 @@ public class DaltonDraw extends Component {
 	 * @param r the rotation of the shape
 	 * @param c the color of the shape
 	 */
-	public void drawShape(Shape s, double r, DaltonColor c) {
+	public void drawShape(Shape s, double r, Color c) {
 		shapeList.add(new Object[] {s, r, c});
 	}
 	
@@ -109,7 +114,7 @@ public class DaltonDraw extends Component {
 	 * @param r the rotation of the triangle
 	 * @param c the color of the triangle
 	 */
-	public void drawTri(double w, double h, double x, double y, double r, DaltonColor c) {
+	public void drawTri(double w, double h, double x, double y, double r, Color c) {
 		Path2D.Double tri = new Path2D.Double();
 		tri.moveTo(x, y+h);
 		tri.lineTo(x+w, y+h);
@@ -130,7 +135,7 @@ public class DaltonDraw extends Component {
 	 * @param r the rotation of the rectangle
 	 * @param c the color of the rectangle
 	 */
-	public void drawRect(double w, double h, double x, double y, double r, DaltonColor c) {
+	public void drawRect(double w, double h, double x, double y, double r, Color c) {
 		Rectangle2D.Double s = new Rectangle2D.Double(x, y, w, h);
 		shapeList.add(new Object[] {s, r, c});
 	}
@@ -149,7 +154,7 @@ public class DaltonDraw extends Component {
 	 * @param r the rotation of the ellipse
 	 * @param c the color of the ellipse
 	 */
-	public void drawEllipse(double w, double h, double x, double y, double r, DaltonColor c) {
+	public void drawEllipse(double w, double h, double x, double y, double r, Color c) {
 		Ellipse2D.Double s = new Ellipse2D.Double(x, y, w, h);
 		shapeList.add(new Object[] {s, r, c});
 	}
@@ -167,7 +172,7 @@ public class DaltonDraw extends Component {
 	 * @param s size of the font
 	 * @param c color of the text
 	 */
-	public void drawString(String t, int x, int y, int s, DaltonColor c) {
+	public void drawString(String t, int x, int y, int s, Color c) {
 		stringList.add(new Object[] {t, x, y, s, c});
 	}
 
@@ -194,14 +199,14 @@ public class DaltonDraw extends Component {
 	 * <p>
 	 * ex
 	 * <pre>
-	 * DaltonColor mycolor = DaltonDraw.getPixel("raphael.jpg", 50, 50);
+	 * Color mycolor = DaltonDraw.getPixel("raphael.jpg", 50, 50);
 	 * </pre>
 	 * @param filename the file name of the image
 	 * @param x the x coordinate of the frame
 	 * @param y the y coordinate of the frame
 	 * @return the color of that pixel
 	 */
-	public static DaltonColor getPixel(String filename, int x, int y) {
+	public static Color getPixel(String filename, int x, int y) {
 		
 		try {
 			BufferedImage bi;
@@ -216,13 +221,13 @@ public class DaltonDraw extends Component {
 			int y_scale = (int)((double)y * ((double)bi.getHeight()/(double)ApplicationFrame.FRAMESIZE));
 			//System.err.println(x_scale + "|" + y_scale);
 			
-			return(new DaltonColor(bi.getRGB(x_scale, y_scale))); 
+			return(new Color(bi.getRGB(x_scale, y_scale))); 
 		} catch (IOException e) {
 			System.err.println("Image " + filename + " could not be loaded");
-			return DaltonColor.black;
+			return Color.black;
 		} catch( ArrayIndexOutOfBoundsException e ) {
 			System.err.println("that (x,y) is outside of the bounds of the frame");
-			return DaltonColor.black;
+			return Color.black;
 		}
 	}
 	
@@ -242,3 +247,66 @@ public class DaltonDraw extends Component {
 	}
 
 }
+
+class ApplicationFrame extends Frame {
+	private static final long serialVersionUID = 1L;
+	public static final int FRAMESIZE = 600;
+
+	public ApplicationFrame() { this("ApplicationFrame v1.0"); }
+
+	public ApplicationFrame(String title) {
+		super(title);
+		createUI();
+		this.setVisible(true);
+
+		//this doesn't work after jar--JUnique is terrible, find a better solution.
+//		//code to close old windows:
+//		final String appId = "ApplicationFrame";
+//		JUnique.sendMessage(appId, "close frame");
+//		JUnique.releaseLock(appId);
+//		
+//		try {
+//			Thread.sleep(2000); // JUnique takes forever to release the lock 
+//								// and is not threadsafe and has no synchronization hooks
+//								// VERY TERRIBLE!
+//			JUnique.acquireLock(appId, new MessageHandler() {
+//				public String handle(String message) {
+//					if(message.contains("close frame")) {
+//						dispose();
+//						System.err.println("closed old frame");
+//						return "successfully closed frame";
+//					}
+//					else return "a mysterious message: " + message;
+//				}
+//			});
+//		} catch (AlreadyLockedException e) {
+//			System.out.println("should never be here");
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+	}
+
+	protected void createUI()
+	{
+		setSize(FRAMESIZE, FRAMESIZE);
+		center();
+
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				dispose();
+				System.exit(0);
+
+			}
+		});
+	}
+
+	public void center()
+	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension frameSize = getSize();
+		int x = (screenSize.width - frameSize.width)/ 2;
+		int y = (screenSize.height - frameSize.height) / 2;
+		setLocation(x,y);
+	}
+}
+
