@@ -43,6 +43,12 @@ public class DaltonDraw extends Component {
 	private List<Object[]> imageList = new ArrayList<Object[]>();
 	private static Map<String, BufferedImage> memImages = new HashMap<String, BufferedImage>();
 	
+	public void clear() {
+		shapeList.removeAll();
+		stringList.removeAll();
+		imageList.removeAll();
+	}
+	
 	public void paint(Graphics g) {
 		//declarations:
 		Graphics2D g2 = (Graphics2D)g;		
