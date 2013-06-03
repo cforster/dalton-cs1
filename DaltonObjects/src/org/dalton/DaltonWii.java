@@ -6,7 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+import javax.bluetooth.L2CAPConnection;
+
 import org.wiigee.device.Wiimote;
+import org.wiigee.device.WiimoteStreamer;
 import org.wiigee.event.ButtonListener;
 import org.wiigee.event.ButtonPressedEvent;
 import org.wiigee.event.ButtonReleasedEvent;
@@ -27,6 +30,7 @@ public class DaltonWii {
 
 	private String lastEvent = "";
 	private Wiimote wm;
+	//L2CAPConnection l2;
 
 	/**
 	 * This function returns the next event the user submits.  There are two types, a button press or a gesture.  <br>
@@ -36,11 +40,38 @@ public class DaltonWii {
 	 * the B button is used to trigger gestures.
 	 * @return a String response based on the event.
 	 */
-	public String getEvent() {
-		lastEvent="";
-		while(lastEvent.equals("")) { ; }
+	public String next() {
+		lastEvent="none";
+		while(lastEvent.equals("none")) { ;
+//			try {
+//				if(!l2.ready()){
+//					wm.disconnect(); 
+//					return "";
+//				}
+//			} catch (IOException e) {
+//				wm.disconnect();
+//				return "";
+//			}
+		}
 		return lastEvent;
 	}
+	
+	/**
+	 * This function returns the next event the user submits.  It will only wait the given number of milliseconds.  There are two types, a button press or a gesture.  <br>
+	 * <br>
+	 * button presses are 1, 2, A, UP, DOWN, HOME, LEFT, RIGHT, MINUS, PLUS.<br>
+	 * default gestures are up, down, left, right, poke, circle, square<br>
+	 * the B button is used to trigger gestures.
+	 * @param timeout the amount of time to wait in millisectonds.
+	 * @return a String response based on the event.
+	 */
+	public String next(long timeout) {
+		lastEvent = "none";
+		long time = System.currentTimeMillis();
+		while(lastEvent.equals("none")&&System.currentTimeMillis()-time<timeout) { ; }
+		return lastEvent;
+	}
+	
 
 	/**
 	 * turn on the LEDs on the wiimote, 1 is on and 0 is off.
@@ -104,6 +135,7 @@ public class DaltonWii {
 			wm.addRotationFilter(new RotationThresholdFilter(0.5));
 			wm.addButtonListener(new ButtonListen());
 			wm.addGestureListener(new GestureListen(gesturefile));
+			//l2 = wm.getReceiveConnection();
 			Log.setLevel(Log.OFF);
 		} catch (IOException e) {
 			System.err.println("could not set up wiimote");
