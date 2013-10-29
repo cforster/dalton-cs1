@@ -44,9 +44,9 @@ public class DaltonDraw extends Component {
 	private static Map<String, BufferedImage> memImages = new HashMap<String, BufferedImage>();
 	
 	public void clear() {
-		shapeList.removeAll();
-		stringList.removeAll();
-		imageList.removeAll();
+	//	shapeList.removeAll();
+	//	stringList.removeAll();
+	//	imageList.removeAll();
 	}
 	
 	public void paint(Graphics g) {
