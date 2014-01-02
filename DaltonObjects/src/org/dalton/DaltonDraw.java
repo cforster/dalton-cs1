@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import javax.imageio.ImageIO;
 
@@ -34,56 +35,58 @@ import javax.imageio.ImageIO;
  *
  */
 public class DaltonDraw extends Component {
+
+	//for testing
+	public static void main(String[] args) {
+		DaltonDraw dd = new DaltonDraw();
+		while(true)
+		{
+			for (int i = 0; i < 100; i++) {
+
+				dd.clear();
+				dd.drawRect(20, 20, 10, 10, 0, Color.red);
+				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
+				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30+i, 30+i);
+				dd.render(100);
+			}
+		}
+	}
+
+
 	public ApplicationFrame frame;
 	public static int frameSize = 600;
-	
+	CountDownLatch latch = null;
+
+
 	private static final long serialVersionUID = 1L;
-	private List<Object[]> shapeList = new ArrayList<Object[]>();
-	private List<Object[]> stringList = new ArrayList<Object[]>();
-	private List<Object[]> imageList = new ArrayList<Object[]>();
+	private List<Drawable> drawList = new ArrayList<Drawable>();
 	private static Map<String, BufferedImage> memImages = new HashMap<String, BufferedImage>();
-	
-	public void clear() {
-		shapeList.clear();
-		stringList.clear();
-		imageList.clear();
+
+	public void render(int backoff) {
+		synchronized(this) { latch = new CountDownLatch(1); }
+		super.repaint();
+		try {
+			Thread.sleep(backoff);
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		synchronized(this) { latch = null; }
 	}
-	
+
+	public void clear() {
+		drawList.clear();
+	}
+
 	public void paint(Graphics g) {
 		//declarations:
 		Graphics2D g2 = (Graphics2D)g;		
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		for(Object[] drawme : shapeList) {
-			Shape s = (Shape)drawme[0];
-			int x = s.getBounds().x + (s.getBounds().width/2);
-			int y =s.getBounds().y + (s.getBounds().height/2);
-			g2.rotate(Math.toRadians((Double)drawme[1]), x, y);
-			g2.setColor((Color) drawme[2]);
-			g2.fill((Shape)drawme[0]);
-			g2.rotate(-Math.toRadians((Double)drawme[1]), x, y);
+		for(Drawable drawme : drawList) {
+			drawme.draw(g2);
 		}
-		for(Object[] writeme: stringList) {
-			g2.setFont(new Font("Serif", Font.PLAIN, (Integer)writeme[3]));
-			g2.setColor((Color)writeme[4]);
-			g2.drawString((String)writeme[0], (Integer)writeme[1], (Integer)writeme[2]);
-		}
-		for(Object[] imageme: imageList) {
-			try {
-				String filename  = (String)imageme[0];
-				BufferedImage i = ImageIO.read(new File(filename));
-				
-				g2.translate((Integer)imageme[3], (Integer)imageme[4]);
-				g2.scale((Double)imageme[1]/(double)i.getWidth(), 
-						(Double)imageme[2]/(double)i.getHeight());
-				g2.drawImage(i, 0, 0, null);
-				g2.scale((double)i.getWidth()/(Double)imageme[1], 
-						(double)i.getHeight()/(Double)imageme[2]);
-				g2.translate(-(Integer)imageme[3], -(Integer)imageme[4]);
-			} catch (IOException e) {
-				System.err.println("Image " + imageme[0] + " could not be shown");
-			}
-		}
+		synchronized(this) { if(latch!=null) latch.countDown(); }
 	}
 
 	/**
@@ -102,9 +105,9 @@ public class DaltonDraw extends Component {
 	 * @param c the color of the shape
 	 */
 	public void drawShape(Shape s, double r, Color c) {
-		shapeList.add(new Object[] {s, r, c});
+		drawList.add(new DaltonShape(s, r, c));
 	}
-	
+
 	/**
 	 * draw a triangle
 	 * <p>
@@ -125,7 +128,7 @@ public class DaltonDraw extends Component {
 		tri.moveTo(x, y+h);
 		tri.lineTo(x+w, y+h);
 		tri.lineTo(x+(w/2), y);
-		shapeList.add(new Object[] {tri, r, c});
+		this.drawShape(tri, r, c);
 	}
 	/**
 	 * draw a rectangle
@@ -143,7 +146,7 @@ public class DaltonDraw extends Component {
 	 */
 	public void drawRect(double w, double h, double x, double y, double r, Color c) {
 		Rectangle2D.Double s = new Rectangle2D.Double(x, y, w, h);
-		shapeList.add(new Object[] {s, r, c});
+		this.drawShape(s, r, c);
 	}
 
 	/**
@@ -162,7 +165,7 @@ public class DaltonDraw extends Component {
 	 */
 	public void drawEllipse(double w, double h, double x, double y, double r, Color c) {
 		Ellipse2D.Double s = new Ellipse2D.Double(x, y, w, h);
-		shapeList.add(new Object[] {s, r, c});
+		this.drawShape(s, r, c);
 	}
 
 	/**
@@ -179,7 +182,7 @@ public class DaltonDraw extends Component {
 	 * @param c color of the text
 	 */
 	public void drawString(String t, int x, int y, int s, Color c) {
-		stringList.add(new Object[] {t, x, y, s, c});
+		drawList.add(new DaltonString(t, x, y, s, c));
 	}
 
 	/**
@@ -197,7 +200,7 @@ public class DaltonDraw extends Component {
 	 * @param y the upper left corner of the image (y coordinate)
 	 */
 	public void drawImage(String i, int w, int h, int x, int y) {
-		imageList.add(new Object[] {i, (double)w, (double)h, x, y});
+		drawList.add(new DaltonImage (i, (double)w, (double)h, x, y));
 	}
 
 	/**
@@ -213,7 +216,7 @@ public class DaltonDraw extends Component {
 	 * @return the color of that pixel
 	 */
 	public static Color getPixel(String filename, int x, int y) {
-		
+
 		try {
 			BufferedImage bi;
 			if(!memImages.containsKey(filename)) {
@@ -226,7 +229,7 @@ public class DaltonDraw extends Component {
 			int x_scale = (int)((double)x * ((double)bi.getWidth()/(double)ApplicationFrame.FRAMESIZE));
 			int y_scale = (int)((double)y * ((double)bi.getHeight()/(double)ApplicationFrame.FRAMESIZE));
 			//System.err.println(x_scale + "|" + y_scale);
-			
+
 			return(new Color(bi.getRGB(x_scale, y_scale))); 
 		} catch (IOException e) {
 			System.err.println("Image " + filename + " could not be loaded");
@@ -236,12 +239,12 @@ public class DaltonDraw extends Component {
 			return Color.black;
 		}
 	}
-	
+
 	/**
 	 * default constructor for the DaltonDraw object
 	 */
 	public DaltonDraw() { this("Default Title"); }
-	
+
 	/**
 	 * constructor for the DaltonDraw object
 	 * @param title the frame title
@@ -252,73 +255,149 @@ public class DaltonDraw extends Component {
 		frame.setVisible(true);
 	}
 
-}
-
-class ApplicationFrame extends Frame {
-	private static final long serialVersionUID = 1L;
-	public static final int FRAMESIZE = 600;
-
-	public ApplicationFrame() { this("ApplicationFrame v1.0"); }
-
-	public ApplicationFrame(String title) {
-		super(title);
-		createUI();
-		this.setVisible(true);
-
-		//this doesn't work after jar--JUnique is terrible, find a better solution.
-//		//code to close old windows:
-//		final String appId = "ApplicationFrame";
-//		JUnique.sendMessage(appId, "close frame");
-//		JUnique.releaseLock(appId);
-//		
-//		try {
-//			Thread.sleep(2000); // JUnique takes forever to release the lock 
-//								// and is not threadsafe and has no synchronization hooks
-//								// VERY TERRIBLE!
-//			JUnique.acquireLock(appId, new MessageHandler() {
-//				public String handle(String message) {
-//					if(message.contains("close frame")) {
-//						dispose();
-//						System.err.println("closed old frame");
-//						return "successfully closed frame";
-//					}
-//					else return "a mysterious message: " + message;
-//				}
-//			});
-//		} catch (AlreadyLockedException e) {
-//			System.out.println("should never be here");
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
+	interface Drawable { 
+		void draw(Graphics2D g2);
 	}
 
-	protected void createUI()
-	{
-		setSize(FRAMESIZE, FRAMESIZE);
-		center();
+	class DaltonShape implements Drawable {
+		Shape s;
+		double r;
+		Color c;
 
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				dispose();
-				System.exit(0);
+		public DaltonShape(Shape s, double r, Color c) {
+			this.s = s;
+			this.r = r;
+			this.c = c;
+		}
 
+		@Override
+		public void draw(Graphics2D g2) {
+			int x = s.getBounds().x + (s.getBounds().width/2);
+			int y =s.getBounds().y + (s.getBounds().height/2);
+			g2.rotate(Math.toRadians(r), x, y);
+			g2.setColor(c);
+			g2.fill(s);
+			g2.rotate(-Math.toRadians(r), x, y);
+
+		}
+	}
+
+	class DaltonString implements Drawable {
+		int x, y;
+		String s;
+		Color c;
+		int size;
+
+		public DaltonString(String s, int x, int y, int size, Color c) {
+			this.x = x;
+			this.y = y;
+			this.s = s;
+			this.c = c;
+			this.size = size;
+		}
+
+		@Override
+		public void draw(Graphics2D g2) {
+			g2.setFont(new Font("Serif", Font.PLAIN, size));
+			g2.setColor(c);
+			g2.drawString(s, x, y);
+		}	
+	}
+
+	class DaltonImage implements Drawable {
+		String filename;
+		int x, y;
+		double w, h;
+
+		public DaltonImage(String filename, double w, double h, int x, int y) {
+			this.filename = filename;
+			this.w =w;
+			this.h=h;
+			this.x=x;
+			this.y=y;
+		}
+
+		@Override
+		public void draw(Graphics2D g2) {
+			try {
+				BufferedImage i = ImageIO.read(new File(filename));
+
+				g2.translate(x, y);
+				g2.scale(w/(double)i.getWidth(), 
+						h/(double)i.getHeight());
+				g2.drawImage(i, 0, 0, null);
+				g2.scale((double)i.getWidth()/w, 
+						(double)i.getHeight()/h);
+				g2.translate(-x, -y);
+			} catch (IOException e) {
+				System.err.println("Image " + filename + " could not be shown");
 			}
-		});
+		}
+
 	}
 
-	public void center()
-	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension frameSize = getSize();
-		int x = (screenSize.width - frameSize.width)/ 2;
-		int y = (screenSize.height - frameSize.height) / 2;
-		setLocation(x,y);
-	}
-	
-	//for testing
-	public static void main(String[] args) {
-		DaltonDraw dd = new DaltonDraw();
-		dd.drawRect(20, 20, 10, 10, 0, Color.red);
+
+
+	class ApplicationFrame extends Frame {
+		private static final long serialVersionUID = 1L;
+		public static final int FRAMESIZE = 600;
+
+		public ApplicationFrame() { this("ApplicationFrame v1.0"); }
+
+		public ApplicationFrame(String title) {
+			super(title);
+			createUI();
+			this.setVisible(true);
+
+			//this doesn't work after jar--JUnique is terrible, find a better solution.
+			//		//code to close old windows:
+			//		final String appId = "ApplicationFrame";
+			//		JUnique.sendMessage(appId, "close frame");
+			//		JUnique.releaseLock(appId);
+			//		
+			//		try {
+			//			Thread.sleep(2000); // JUnique takes forever to release the lock 
+			//								// and is not threadsafe and has no synchronization hooks
+			//								// VERY TERRIBLE!
+			//			JUnique.acquireLock(appId, new MessageHandler() {
+			//				public String handle(String message) {
+			//					if(message.contains("close frame")) {
+			//						dispose();
+			//						System.err.println("closed old frame");
+			//						return "successfully closed frame";
+			//					}
+			//					else return "a mysterious message: " + message;
+			//				}
+			//			});
+			//		} catch (AlreadyLockedException e) {
+			//			System.out.println("should never be here");
+			//		} catch (InterruptedException e) {
+			//			e.printStackTrace();
+			//		}
+		}
+
+		protected void createUI()
+		{
+			setSize(FRAMESIZE, FRAMESIZE);
+			center();
+
+			addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					dispose();
+					System.exit(0);
+
+				}
+			});
+		}
+
+		public void center()
+		{
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			Dimension frameSize = getSize();
+			int x = (screenSize.width - frameSize.width)/ 2;
+			int y = (screenSize.height - frameSize.height) / 2;
+			setLocation(x,y);
+		}
 	}
 }
 
