@@ -14,6 +14,17 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
 public class DaltonMidi {	
+	public static void main(String[] args) {
+		DaltonMidi dm = new DaltonMidi();
+		dm.setInstrument(10);
+		for (int i = 60; i < 70; i++) {
+			dm.addNote(i, 1);
+		}
+		dm.removeAll();
+		dm.close();
+	}
+	
+	
 	private Sequencer player;
 	private Sequence seq;
 	private Track track;
@@ -80,34 +91,34 @@ public class DaltonMidi {
 	}
 
 	/**
-	 * push a rest in the song.
+	 * add a rest in the queue.
 	 * @param length number of beats the rest will last.
 	 */
-	public void pushRest(int length) {
+	public void addRest(int length) {
 		beatCounter +=length*tempo;
 	}
 
 	/**
-	 * push a rest in the song.
+	 * add a rest in the queue.
 	 */
-	public void pushRest() {
-		this.pushRest(1);
+	public void addRest() {
+		this.addRest(1);
 	}
 
 	/**
-	 * push a note in the song
+	 * add a note in the queue
 	 * @param note pitch of the note (between 0 and 127)
 	 */
-	public void pushNote(int note) {
-		this.pushNote(note, 1);
+	public void addNote(int note) {
+		this.addNote(note, 1);
 	}
 
 	/**
-	 * push a note in the song
+	 * add a note in the queue
 	 * @param note pitch of the note (between 0 and 127)
 	 * @param length number of beats the note will last
 	 */
-	public void pushNote(int note, int length) {
+	public void addNote(int note, int length) {
 		try {
 			ShortMessage a = new ShortMessage();
 			a.setMessage(144, 1, note, 100);
@@ -130,7 +141,7 @@ public class DaltonMidi {
 	/**
 	 * play your song
 	 */
-	public void popAll() {
+	public void removeAll() {
 		try {
 			player.setSequence(seq);
 			player.start();
