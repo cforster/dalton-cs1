@@ -3,6 +3,12 @@ package org.dalton;
 import java.io.IOException;
 
 public class DaltonSay {
+	public static void main(String[] args) {
+		DaltonSay ds = new DaltonSay();
+		ds.setVoice(AGNES);
+		ds.say("hello world");
+	}
+	
 	private String voice;
 
 	public static final String AGNES = "Agnes";			   //en_US    # Isn't it nice to have a computer that will talk to you?<br>
