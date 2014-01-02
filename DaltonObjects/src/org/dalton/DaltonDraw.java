@@ -314,5 +314,11 @@ class ApplicationFrame extends Frame {
 		int y = (screenSize.height - frameSize.height) / 2;
 		setLocation(x,y);
 	}
+	
+	//for testing
+	public static void main(String[] args) {
+		DaltonDraw dd = new DaltonDraw();
+		dd.drawRect(20, 20, 10, 10, 0, Color.red);
+	}
 }
 
