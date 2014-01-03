@@ -1,0 +1,3 @@
+[submodule "DaltonObjects/libs/knicker"]
+	path = DaltonObjects/libs/knicker
+	url = https://github.com/jeremybrooks/knicker.git
