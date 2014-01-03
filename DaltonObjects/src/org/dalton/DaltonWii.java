@@ -6,18 +6,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
-import javax.bluetooth.L2CAPConnection;
-
-import org.wiigee.device.Wiimote;
-import org.wiigee.device.WiimoteStreamer;
 import org.wiigee.event.ButtonListener;
 import org.wiigee.event.ButtonPressedEvent;
 import org.wiigee.event.ButtonReleasedEvent;
 import org.wiigee.event.GestureEvent;
 import org.wiigee.event.GestureListener;
 import org.wiigee.filter.HighPassFilter;
-import org.wiigee.filter.RotationThresholdFilter;
 import org.wiigee.util.Log;
+import org.wiimote.device.Wiimote;
+import org.wiimote.filter.RotationThresholdFilter;
 
 /*
  * The DaltonWii class helps you use the wiimote as a controller. <br>
@@ -27,7 +24,17 @@ import org.wiigee.util.Log;
 
 
 public class DaltonWii {
-
+	public static void main(String[] args) {
+		//declarations:
+		DaltonWii dw = new DaltonWii("00191DD44482");
+		
+		while(true) {
+			String event = dw.next();
+			System.out.println(event);
+			if(event.equalsIgnoreCase("1")) System.out.println("you so square");
+		}
+		
+	}
 	private String lastEvent = "";
 	private Wiimote wm;
 	//L2CAPConnection l2;
