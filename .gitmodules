@@ -1,3 +1,6 @@
 [submodule "DaltonObjects/libs/knicker"]
 	path = DaltonObjects/libs/knicker
 	url = https://github.com/jeremybrooks/knicker.git
+[submodule "DaltonObjects/libs/wiigee"]
+	path = DaltonObjects/libs/wiigee
+	url = git@github.com:cforster/wiigee.git
