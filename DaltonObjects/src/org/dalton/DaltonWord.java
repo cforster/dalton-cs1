@@ -17,11 +17,14 @@ import net.jeremybrooks.knicker.dto.Word;
 
 
 public class DaltonWord {
+<<<<<<< HEAD
 	public static void main(String[] args) {
 		DaltonWord dw = new DaltonWord();
 		System.out.println(dw.getWord() + ": " + dw.getDefinition());
 	}
 	
+=======
+>>>>>>> 9e295e02eccf4a49ec17cfdac99c399fb407ef33
 	private List<Definition> myDefs;
 	private Word myWord;
 	private String myExam="";
