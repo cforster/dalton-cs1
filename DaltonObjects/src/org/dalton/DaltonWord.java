@@ -113,6 +113,14 @@ public class DaltonWord {
 	}
 
 	/**
+	 * override the default toString function
+	 * @return the word
+	 */
+	public String toString() {
+		return getWord();
+	}
+	
+	/**
 	 * Get the word string
 	 * @return the word
 	 */
