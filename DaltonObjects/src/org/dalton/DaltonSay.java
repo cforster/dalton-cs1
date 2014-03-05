@@ -37,7 +37,7 @@ public class DaltonSay {
 	public static final String ZARVOX = "Zarvox";          //en_US    # That looks like a peaceful planet.<br>
 
 
-	DaltonSay() {
+	public DaltonSay() {
 		voice = FRED; //default
 	}
 

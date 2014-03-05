@@ -34,7 +34,7 @@ import javax.imageio.ImageIO;
  *  TODO: let repaint be refresh, with optional delay parameter for animations
  *
  */
-public class DaltonDraw extends Component {
+public class DaltonDraw {
 
 	//for testing
 	public static void main(String[] args) {
@@ -42,17 +42,16 @@ public class DaltonDraw extends Component {
 		while(true)
 		{
 			for (int i = 0; i < 100; i++) {
-
 				dd.clear();
-				dd.drawRect(20, 20, 10, 10, 0, Color.red);
+				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30, 30);
+				dd.drawRect(20, 20, 10+i, 10+i, 0, Color.red);
 				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
-				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30+i, 30+i);
 				dd.render(100);
 			}
 		}
 	}
 
-
+	private DaltonComponent c = new DaltonComponent();
 	public ApplicationFrame frame;
 	public static int frameSize = 600;
 	CountDownLatch latch = null;
@@ -64,7 +63,7 @@ public class DaltonDraw extends Component {
 
 	public void render(int backoff) {
 		synchronized(this) { latch = new CountDownLatch(1); }
-		super.repaint();
+		c.repaint();
 		try {
 			Thread.sleep(backoff);
 			latch.await();
@@ -73,22 +72,36 @@ public class DaltonDraw extends Component {
 		}
 		synchronized(this) { latch = null; }
 	}
+	
+	public void render() {
+		render(10);
+	}
+
+	/*
+	 * interface elements:
+	 *
+	public String listen(String name) {
+
+	}*/
 
 	public void clear() {
 		drawList.clear();
 	}
 
-	public void paint(Graphics g) {
-		//declarations:
-		Graphics2D g2 = (Graphics2D)g;		
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	@SuppressWarnings("serial")
+	class DaltonComponent extends Component {
 
-		for(Drawable drawme : drawList) {
-			drawme.draw(g2);
+		public void paint(Graphics g) {
+			//declarations:
+			Graphics2D g2 = (Graphics2D)g;		
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			for(Drawable drawme : drawList) {
+				drawme.draw(g2);
+			}
+			synchronized(this) { if(latch!=null) latch.countDown(); }
 		}
-		synchronized(this) { if(latch!=null) latch.countDown(); }
 	}
-
 	/**
 	 * draw a generic shape into the frame
 	 * <p>
@@ -251,7 +264,7 @@ public class DaltonDraw extends Component {
 	 */
 	public DaltonDraw(String title) {
 		frame = new ApplicationFrame(title);  //
-		frame.add(this);
+		frame.add(c);
 		frame.setVisible(true);
 	}
 
@@ -304,6 +317,27 @@ public class DaltonDraw extends Component {
 		}	
 	}
 
+	class DaltonButton implements Drawable {
+		String name;
+		int x, y;
+		double w, h;
+
+		public DaltonButton(String name, double w, double h, int x, int y) {
+			this.name = name;
+			this.w = w;
+			this.h = h;
+			this.x = x;
+			this.y = y;
+		}
+
+		@Override
+		public void draw(Graphics2D g2) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
 	class DaltonImage implements Drawable {
 		String filename;
 		int x, y;
@@ -320,7 +354,10 @@ public class DaltonDraw extends Component {
 		@Override
 		public void draw(Graphics2D g2) {
 			try {
-				BufferedImage i = ImageIO.read(new File(filename));
+				if(!memImages.containsKey(filename)) {
+					memImages.put(filename, ImageIO.read(new File(filename)));
+				}
+				BufferedImage i = memImages.get(filename);
 
 				g2.translate(x, y);
 				g2.scale(w/(double)i.getWidth(), 
