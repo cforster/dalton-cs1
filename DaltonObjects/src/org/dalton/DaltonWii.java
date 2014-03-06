@@ -18,10 +18,8 @@ import org.wiigee.util.Log;
 import org.wiimote.device.Wiimote;
 import org.wiimote.filter.RotationThresholdFilter;
 
-/*
- * The DaltonWii class helps you use the wiimote as a controller. <br>
- * <br>
- * IMPORTANT: needs to be run with the -d32 option for the VM
+/**
+ * use the wiimote as a controller.
  */
 
 

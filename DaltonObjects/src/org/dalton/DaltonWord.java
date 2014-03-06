@@ -16,6 +16,11 @@ import net.jeremybrooks.knicker.dto.TokenStatus;
 import net.jeremybrooks.knicker.dto.Word;
 
 
+/**
+ * get a random word and other information about it.
+ * @author cforster
+ *
+ */
 public class DaltonWord {
 	public static void main(String[] args) {
 		DaltonWord dw = new DaltonWord();
@@ -70,7 +75,7 @@ public class DaltonWord {
 	 *        is less than 1, it will be ignored.
 	 * @param maxLength maximum word length. If this parameter
 	 *        is less than 1, it will be ignored.
-	 * @return a random word.
+	 * 
 	 * @throws KnickerException if there are any errors, or if a word cannot be
 	 *         found that matches the parameters.
 	 */
@@ -159,7 +164,7 @@ public class DaltonWord {
 	/**
 	 * get a specific definition of a word
 	 * @param i get the ith defintion, starting from zero
-	 * @see getDefinitionCount
+	 * @see #getDefinitionCount()
 	 * @return the Definition object of a word
 	 */
 	public Definition getDefinition(int i)

@@ -29,7 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.imageio.ImageIO;
 
 /**
- * DaltonDraw is a simplified class for drawing into a frame using java.
+ * draw into a frame using java.
  * @author cforster
  *
  */
@@ -93,7 +93,7 @@ public class DaltonDraw {
 	/**
 	 * listen 
 	 * this function waits for the user to click on any of the input methods
-	 * @returnthe name of the button clicked.
+	 * @return the name of the button clicked.
 	 */
 	public String listen() {
 		synchronized(this) { buttonLatch = new CountDownLatch(1); }
@@ -333,8 +333,6 @@ public class DaltonDraw {
 			}
 		});
 		frame.setVisible(true);
-
-
 	}
 
 	interface Drawable { 

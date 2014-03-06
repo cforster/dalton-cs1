@@ -2,6 +2,11 @@ package org.dalton;
 
 import java.io.IOException;
 
+/**
+ * text to speech
+ * @author cforster
+ *
+ */
 public class DaltonSay {
 	public static void main(String[] args) {
 		DaltonSay ds = new DaltonSay();

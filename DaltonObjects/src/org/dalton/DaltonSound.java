@@ -5,6 +5,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+/**
+ * play tones based on a generated waveform
+ * @author cforster
+ *
+ */
 
 public class DaltonSound {
 	public static void main(String[] args){
@@ -76,6 +81,10 @@ public class DaltonSound {
 
 	}
 
+	/**
+	 * various types of waveforms for sound generation
+	 * @author cforster
+	 */
 	public enum Waveform {
 		SINE, SQUARE, SAWTOOTH, TRIANGLE
 	}

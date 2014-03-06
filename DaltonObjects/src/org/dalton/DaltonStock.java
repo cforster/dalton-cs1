@@ -15,6 +15,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+/**
+ * get stock prices from the internet
+ * @author cforster
+ *
+ */
 
 public class DaltonStock {
 	public static void main(String[] args) throws InterruptedException {
@@ -26,6 +31,11 @@ public class DaltonStock {
 		System.out.println(DaltonStock.symbolLookup("International Business Machines"));
 	}
 
+	/**
+	 * give the symbol for a company
+	 * @param input the search term (company name)
+	 * @return the symbol
+	 */
 	public static String symbolLookup(String input) {
 		String url= "";
 		try {
@@ -113,6 +123,9 @@ public class DaltonStock {
 		return ret;
 	}
 
+	/**
+	 * refresh the price.
+	 */
 	public void refresh() {
 		Document doc = fetchQuote(symbol);
 		Node quote = doc.getElementsByTagName("StockQuote").item(0);
@@ -134,6 +147,10 @@ public class DaltonStock {
 		}
 	}
 
+	/**
+	 * get the stock price for a given symbol
+	 * @param symbol the stock symbol
+	 */
 	public DaltonStock(String symbol) {
 		this.symbol = symbol;
 		refresh();

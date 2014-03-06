@@ -1,6 +1,6 @@
 package org.dalton;
 
-public class DaltonServer {
+class DaltonServer {
 	public DaltonServer() {
 		
 	}

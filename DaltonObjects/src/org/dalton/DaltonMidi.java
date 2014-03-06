@@ -1,10 +1,4 @@
 package org.dalton;
-/**
- * This Class is a simplified MIDI player.  Use it to create and play any song you like.
- * 
- * @author Charlie Forster
- */
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
@@ -12,7 +6,10 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-
+/**
+ * A simplified MIDI player.  Use it to create and play any song you like.
+ * @author Charlie Forster
+ */
 public class DaltonMidi {	
 	public static void main(String[] args) {
 		DaltonMidi dm = new DaltonMidi();
