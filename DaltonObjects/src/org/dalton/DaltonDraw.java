@@ -10,6 +10,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
@@ -46,21 +48,32 @@ public class DaltonDraw {
 				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30, 30);
 				dd.drawRect(20, 20, 10+i, 10+i, 0, Color.red);
 				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
-				dd.render(100);
+				dd.drawButton("helloworld2", 200, 50, 300+i, 300);
+				dd.drawButton("helloworld", 300, 30, 200+i, 200);
+
+				dd.render(10);
+
 			}
+			System.out.println(dd.listen());
 		}
 	}
 
 	private DaltonComponent c = new DaltonComponent();
 	public ApplicationFrame frame;
 	public static int frameSize = 600;
-	CountDownLatch latch = null;
+	private CountDownLatch latch = null;
+	private CountDownLatch buttonLatch = null;
+	private String lastEvent;
 
 
-	private static final long serialVersionUID = 1L;
 	private List<Drawable> drawList = new ArrayList<Drawable>();
 	private static Map<String, BufferedImage> memImages = new HashMap<String, BufferedImage>();
 
+	/**
+	 * render
+	 * this draws all the things in the frame
+	 * @param backoff the amount of time to wait
+	 */
 	public void render(int backoff) {
 		synchronized(this) { latch = new CountDownLatch(1); }
 		c.repaint();
@@ -72,20 +85,40 @@ public class DaltonDraw {
 		}
 		synchronized(this) { latch = null; }
 	}
-	
+
+	/**
+	 * render
+	 * this draws all the things in the frame
+	 * it waits 41ms.
+	 */
 	public void render() {
-		render(10);
+		render(41);
 	}
 
-	/*
-	 * interface elements:
-	 *
-	public String listen(String name) {
+	/**
+	 * listen 
+	 * this function waits for the user to click on any of the input methods
+	 * @returnthe name of the button clicked.
+	 */
+	public String listen() {
+		synchronized(this) { buttonLatch = new CountDownLatch(1); }
+		try {
+			buttonLatch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return lastEvent;
+	}
 
-	}*/
-
+	/**
+	 * clear
+	 * this function clears the frame
+	 */
 	public void clear() {
-		drawList.clear();
+		for (Drawable d : drawList) {
+			d.clear();
+		}
+		drawList.clear();	
 	}
 
 	@SuppressWarnings("serial")
@@ -99,6 +132,7 @@ public class DaltonDraw {
 			for(Drawable drawme : drawList) {
 				drawme.draw(g2);
 			}
+
 			synchronized(this) { if(latch!=null) latch.countDown(); }
 		}
 	}
@@ -119,6 +153,10 @@ public class DaltonDraw {
 	 */
 	public void drawShape(Shape s, double r, Color c) {
 		drawList.add(new DaltonShape(s, r, c));
+	}
+
+	public void drawButton(String name, int w, int h, int x, int y) {
+		drawList.add(new DaltonButton(name, w, h, x, y));
 	}
 
 	/**
@@ -256,7 +294,7 @@ public class DaltonDraw {
 	/**
 	 * default constructor for the DaltonDraw object
 	 */
-	public DaltonDraw() { this("Default Title"); }
+	public DaltonDraw() { this("Default Title"); render(10); }
 
 	/**
 	 * constructor for the DaltonDraw object
@@ -270,6 +308,7 @@ public class DaltonDraw {
 
 	interface Drawable { 
 		void draw(Graphics2D g2);
+		void clear();
 	}
 
 	class DaltonShape implements Drawable {
@@ -293,6 +332,12 @@ public class DaltonDraw {
 			g2.rotate(-Math.toRadians(r), x, y);
 
 		}
+
+		@Override
+		public void clear() {
+			// TODO Auto-generated method stub
+
+		}
 	}
 
 	class DaltonString implements Drawable {
@@ -314,10 +359,16 @@ public class DaltonDraw {
 			g2.setFont(new Font("Serif", Font.PLAIN, size));
 			g2.setColor(c);
 			g2.drawString(s, x, y);
+		}
+
+		@Override
+		public void clear() {
+			// TODO Auto-generated method stub
+
 		}	
 	}
 
-	class DaltonButton implements Drawable {
+	class DaltonButton implements Drawable, MouseListener {
 		String name;
 		int x, y;
 		double w, h;
@@ -332,8 +383,54 @@ public class DaltonDraw {
 
 		@Override
 		public void draw(Graphics2D g2) {
+			Rectangle2D.Double s = new Rectangle2D.Double(x, y, w, h);	
+			g2.setColor(Color.gray);
+			g2.fill(s);
+			g2.setColor(Color.black);
+			g2.draw(s);
+			g2.setFont(new Font("Serif", Font.PLAIN, (int) (2*h/3)));
+			g2.drawString(name, x+5, (int) (y+h*5/6));
+			c.addMouseListener(this);
+		}
+
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if ((e.getButton() == 1)
+					&& (e.getX() >= x && e.getX() <= x+w && e.getY() >= y && e.getY() <= y+h)) {
+				lastEvent = this.name;
+				if(buttonLatch!=null) buttonLatch.countDown();
+			}
+
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
 
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void clear() {
+			c.removeMouseListener(this);
 		}
 
 	}
@@ -369,6 +466,12 @@ public class DaltonDraw {
 			} catch (IOException e) {
 				System.err.println("Image " + filename + " could not be shown");
 			}
+		}
+
+		@Override
+		public void clear() {
+			// TODO Auto-generated method stub
+
 		}
 
 	}

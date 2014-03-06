@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.wiigee.event.ButtonListener;
 import org.wiigee.event.ButtonPressedEvent;
@@ -37,6 +39,7 @@ public class DaltonWii {
 	}
 	private String lastEvent = "";
 	private Wiimote wm;
+	private CountDownLatch lastEventLatch;
 	//L2CAPConnection l2;
 
 	/**
@@ -48,17 +51,11 @@ public class DaltonWii {
 	 * @return a String response based on the event.
 	 */
 	public String next() {
-		lastEvent="none";
-		while(lastEvent.equals("none")) { ;
-//			try {
-//				if(!l2.ready()){
-//					wm.disconnect(); 
-//					return "";
-//				}
-//			} catch (IOException e) {
-//				wm.disconnect();
-//				return "";
-//			}
+		synchronized(this) { lastEventLatch = new CountDownLatch(1); }
+		try {
+			lastEventLatch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		return lastEvent;
 	}
@@ -73,9 +70,12 @@ public class DaltonWii {
 	 * @return a String response based on the event.
 	 */
 	public String next(long timeout) {
-		lastEvent = "none";
-		long time = System.currentTimeMillis();
-		while(lastEvent.equals("none")&&System.currentTimeMillis()-time<timeout) { ; }
+		synchronized(this) { lastEventLatch = new CountDownLatch(1); }
+		try {
+			lastEventLatch.await(timeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return lastEvent;
 	}
 	
@@ -202,8 +202,9 @@ public class DaltonWii {
 			case Wiimote.BUTTON_RIGHT: lastEvent= "RIGHT"; break;
 			case Wiimote.BUTTON_MINUS: lastEvent= "MINUS"; break;
 			case Wiimote.BUTTON_PLUS: lastEvent= "PLUS"; break;
-			default: break;
+			default: return;
 			}
+			lastEventLatch.countDown();
 		}
 
 		@Override
@@ -219,9 +220,10 @@ public class DaltonWii {
 			case Wiimote.BUTTON_RIGHT: lastEvent= "RIGHT_release"; break;
 			case Wiimote.BUTTON_MINUS: lastEvent= "MINUS_release"; break;
 			case Wiimote.BUTTON_PLUS: lastEvent= "PLUS_release"; break;
-			default: break;
+			default: return;
 
 			}
+			lastEventLatch.countDown();
 		}
 	}
 }
