@@ -32,9 +32,6 @@ import javax.imageio.ImageIO;
  * DaltonDraw is a simplified class for drawing into a frame using java.
  * @author cforster
  *
- *
- *  TODO: let repaint be refresh, with optional delay parameter for animations
- *
  */
 public class DaltonDraw {
 
@@ -50,9 +47,7 @@ public class DaltonDraw {
 				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
 				dd.drawButton("helloworld2", 200, 50, 300+i, 300);
 				dd.drawButton("helloworld", 300, 30, 200+i, 200);
-
 				dd.render(10);
-
 			}
 			System.out.println(dd.listen());
 		}
@@ -303,7 +298,43 @@ public class DaltonDraw {
 	public DaltonDraw(String title) {
 		frame = new ApplicationFrame(title);  //
 		frame.add(c);
+		c.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getButton() == 1) {
+					System.err.println("X: " + e.getX() +", Y: " + e.getY());
+				}
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
 		frame.setVisible(true);
+
+
 	}
 
 	interface Drawable { 
