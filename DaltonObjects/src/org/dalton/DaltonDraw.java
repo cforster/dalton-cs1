@@ -1,7 +1,6 @@
 package org.dalton;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
@@ -27,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import javax.imageio.ImageIO;
+import javax.swing.JComponent;
 
 /**
  * draw into a frame using java.
@@ -37,20 +37,63 @@ public class DaltonDraw {
 
 	//for testing
 	public static void main(String[] args) {
-		DaltonDraw dd = new DaltonDraw();
-		while(true)
-		{
-			for (int i = 0; i < 100; i++) {
-				dd.clear();
-				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30, 30);
-				dd.drawRect(20, 20, 10+i, 10+i, 0, Color.red);
-				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
-				dd.drawButton("helloworld2", 200, 50, 300+i, 300);
-				dd.drawButton("helloworld", 300, 30, 200+i, 200);
-				dd.render(10);
-			}
-			System.out.println(dd.listen());
-		}
+		//		DaltonDraw dd = new DaltonDraw();
+		//		Random gen = new Random();
+		//		while(true)
+		//		{
+		//			for (int i = 0; i < 100; i++) {
+		//				dd.clear();
+		//
+		//				for (int j = 0; j < 100; j++) {
+		//					dd.drawRect(200+gen.nextInt(300), 200, 10+i+j*2, 10+i+j*2, 0, new Color(i,j,40));
+		//				}
+		//				dd.drawButton("helloworld2", 200, 50, 300+i, 300);
+		//				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
+		//				dd.drawButton("helloworld"+i, 300, 30, 200+i, 200);
+		//				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30, 30);
+		//
+		//				
+		//
+		//				//				System.out.println(dd.listen());
+		//			}
+		//			dd.render();
+		//		}
+
+		//		//declarations
+//		Random gen= new Random();
+//		DaltonDraw frame = new DaltonDraw();
+//		int x =55;
+//
+//		while(true){
+//			//clear
+//			frame.clear();
+//
+////			for (int j = 0; j < 100; j++) {
+////				frame.drawRect(200+gen.nextInt(300), 200, 10+x+j*2, 10+x+j*2, 0, new Color(x,j,40));
+////			}
+//
+//			//draw some stuff
+//			frame.drawEllipse(450, 450, 120, 0, 0, Color.BLACK);
+//			frame.drawImage("src/images/Hello_Kitty_Pink.jpg", 200, 200, (x*10)%600, 0);
+//			frame.drawEllipse(220, 220, 240, 230, 0, Color.white);
+//			frame.drawEllipse(220, 220, 236, 230, 0, Color.WHITE);
+//			frame.drawEllipse(110, 130, 335, 75, 15, Color.WHITE);
+//			frame.drawEllipse(110, 130, 240, 75, 345, Color.WHITE);
+//			frame.drawEllipse(40, 40, 370, 130, 15, Color.black);
+//			frame.drawEllipse(40, 40, 275, 130, 345, Color.black);
+//			frame.drawTri(85, 62, 305, 200, 180, Color.orange);
+//			frame.drawEllipse(90, 30, 303, 180, 0, Color.orange);
+//			frame.drawEllipse(30, 30, 180, 470, 0, Color.orange);
+//
+//
+//			//write:
+//			//			frame.drawString(x + "", x, 50, 20, Color.MAGENTA);
+//			//			frame.drawString(x+"", x, 20, 20, Color.BLACK);
+//
+//			x++;
+//			frame.render(10);
+//		}
+
 	}
 
 	private DaltonComponent c = new DaltonComponent();
@@ -59,7 +102,7 @@ public class DaltonDraw {
 	private CountDownLatch latch = null;
 	private CountDownLatch buttonLatch = null;
 	private String lastEvent;
-
+	private Color background = new Color(238,238,238);
 
 	private List<Drawable> drawList = new ArrayList<Drawable>();
 	private static Map<String, BufferedImage> memImages = new HashMap<String, BufferedImage>();
@@ -117,16 +160,20 @@ public class DaltonDraw {
 	}
 
 	@SuppressWarnings("serial")
-	class DaltonComponent extends Component {
+	class DaltonComponent extends JComponent {
 
 		public void paint(Graphics g) {
 			//declarations:
-			Graphics2D g2 = (Graphics2D)g;		
+			//			Graphics2D g2 = (Graphics2D)g;	
+			Graphics2D g2 = (Graphics2D)frame.getBufferStrategy().getDrawGraphics();
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+			g2.setBackground(background);
+			g2.clearRect(0, 0, 800, 800);
 			for(Drawable drawme : drawList) {
 				drawme.draw(g2);
 			}
+			g2.dispose();
+			frame.getBufferStrategy().show();
 
 			synchronized(this) { if(latch!=null) latch.countDown(); }
 		}
@@ -298,8 +345,9 @@ public class DaltonDraw {
 	public DaltonDraw(String title) {
 		frame = new ApplicationFrame(title);  //
 		frame.add(c);
+		frame.createBufferStrategy(2);
+		//		frame.add(new GLG2DCanvas(c));
 		c.addMouseListener(new MouseListener() {
-
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getButton() == 1) {
@@ -374,6 +422,7 @@ public class DaltonDraw {
 		String s;
 		Color c;
 		int size;
+		Font f;
 
 		public DaltonString(String s, int x, int y, int size, Color c) {
 			this.x = x;
@@ -381,11 +430,12 @@ public class DaltonDraw {
 			this.s = s;
 			this.c = c;
 			this.size = size;
+			f = new Font("Serif", Font.PLAIN, size);
 		}
 
 		@Override
 		public void draw(Graphics2D g2) {
-			g2.setFont(new Font("Serif", Font.PLAIN, size));
+			g2.setFont(f);
 			g2.setColor(c);
 			g2.drawString(s, x, y);
 		}
@@ -401,6 +451,8 @@ public class DaltonDraw {
 		String name;
 		int x, y;
 		double w, h;
+		Font f;
+		Rectangle2D.Double s;
 
 		public DaltonButton(String name, double w, double h, int x, int y) {
 			this.name = name;
@@ -408,16 +460,17 @@ public class DaltonDraw {
 			this.h = h;
 			this.x = x;
 			this.y = y;
+			f = new Font("Serif", Font.PLAIN, (int) (2*h/3));
+			s = new Rectangle2D.Double(x, y, w, h);
 		}
 
 		@Override
-		public void draw(Graphics2D g2) {
-			Rectangle2D.Double s = new Rectangle2D.Double(x, y, w, h);	
+		public void draw(Graphics2D g2) {	
 			g2.setColor(Color.gray);
 			g2.fill(s);
 			g2.setColor(Color.black);
 			g2.draw(s);
-			g2.setFont(new Font("Serif", Font.PLAIN, (int) (2*h/3)));
+			g2.setFont(f);
 			g2.drawString(name, x+5, (int) (y+h*5/6));
 			c.addMouseListener(this);
 		}
@@ -547,7 +600,7 @@ public class DaltonDraw {
 
 		protected void createUI()
 		{
-			setSize(FRAMESIZE, FRAMESIZE);
+			setSize(FRAMESIZE, FRAMESIZE+25); // include the header
 			center();
 
 			addWindowListener(new WindowAdapter() {
