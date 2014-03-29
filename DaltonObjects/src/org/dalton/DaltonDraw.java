@@ -37,28 +37,28 @@ public class DaltonDraw {
 
 	//for testing
 	public static void main(String[] args) {
-				DaltonDraw dd = new DaltonDraw();
-				Random gen = new Random();
-				while(true)
-				{
-				    for (int i = 0; i < 1; i++) {
-					
-					dd.clear();
-					for (int j = 0; j < 1; j++) {
-					    dd.drawRect(200+gen.nextInt(300), 200, 10+i+j*2, 10+i+j*2, 0, new Color(i,j,40));
-					}
-					dd.drawButton("helloworld2", 200, 50, 300+i, 300);
-					dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
-					dd.drawButton("helloworld"+i, 300, 30, 200+i, 200);
-											dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30, 30);
-		
-		
-				    }
-				    dd.render();
-				    System.out.println(dd.listen());
-				}
+		DaltonDraw dd = new DaltonDraw();
+		Random gen = new Random();
+		while(true)
+		{
+			for (int i = 0; i < 1; i++) {
 
-				//declarations
+				dd.clear();
+				for (int j = 0; j < 1; j++) {
+					dd.drawRect(200+gen.nextInt(300), 200, 10+i+j*2, 10+i+j*2, 0, new Color(i,j,40));
+				}
+				dd.drawButton("helloworld2", 200, 50, 300+i, 300);
+				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
+				dd.drawButton("helloworld"+i, 300, 30, 200+i, 200);
+				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30, 30);
+
+
+			}
+			dd.render();
+			// System.out.println(dd.listen());
+		}
+
+		//declarations
 		// DaltonDraw frame = new DaltonDraw();
 		// int x =55;
 
@@ -99,6 +99,7 @@ public class DaltonDraw {
 	private CountDownLatch buttonLatch = null;
 	private String lastEvent;
 	private Color background = new Color(238,238,238);
+	public boolean clickListen = true;
 
 	private List<Drawable> drawList = new ArrayList<Drawable>();
 	private static Map<String, BufferedImage> memImages = new HashMap<String, BufferedImage>();
@@ -109,20 +110,20 @@ public class DaltonDraw {
 	 * @param backoff the amount of time to wait
 	 */
 	public void render(int backoff) {
-	    Graphics2D g2 = (Graphics2D)frame.getBufferStrategy().getDrawGraphics();
-	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	    g2.setBackground(background);
-	    g2.clearRect(0, 0, 800, 800);
-	    for(Drawable drawme : drawList) {
-		drawme.draw(g2);
-	    }
-	    g2.dispose();
-	    frame.getBufferStrategy().show();
-	    try {
-		Thread.sleep(backoff);
-	    } catch (InterruptedException e) {
-		e.printStackTrace();
-	    }
+		Graphics2D g2 = (Graphics2D)frame.getBufferStrategy().getDrawGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setBackground(background);
+		g2.clearRect(0, 0, 800, 800);
+		for(Drawable drawme : drawList) {
+			drawme.draw(g2);
+		}
+		g2.dispose();
+		frame.getBufferStrategy().show();
+		try {
+			Thread.sleep(backoff);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -318,7 +319,7 @@ public class DaltonDraw {
 	/**
 	 * default constructor for the DaltonDraw object
 	 */
-	public DaltonDraw() { this("Default Title"); render(10); }
+	public DaltonDraw() { this("Default Title"); }
 
 	/**
 	 * constructor for the DaltonDraw object
@@ -331,7 +332,12 @@ public class DaltonDraw {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getButton() == 1) {
+					if(clickListen) {
+						lastEvent = e.getX() + "," + e.getY();
+						buttonLatch.countDown();
+					}
 					System.err.println("X: " + e.getX() +", Y: " + e.getY());
+
 				}
 
 			}
@@ -361,6 +367,7 @@ public class DaltonDraw {
 			}
 		});
 		frame.setVisible(true);
+		render(10);
 	}
 
 	interface Drawable { 

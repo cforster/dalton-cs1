@@ -295,6 +295,18 @@ Instrument: Gunshot bank #0 preset #127
 	}
 	
 	/**
+	 * prints all the notes to in the queue
+	 */
+	public String toString() {
+		String ret = "";
+		for (int i = 0; i < size(); i++) {
+			ret += get(i) + ",";
+		}
+		if(ret.endsWith(",")) ret = ret.substring(0, ret.length()-1);
+		return ret;
+	}
+	
+	/**
 	 * the length of the song
 	 * @return the number of notes in the queue.
 	 */
