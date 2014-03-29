@@ -39,8 +39,11 @@ public class DaltonDraw {
 	public static void main(String[] args) {
 		DaltonDraw dd = new DaltonDraw();
 		Random gen = new Random();
+		int k = 200;
+		dd.setSize(300);
 		while(true)
 		{
+			
 			for (int i = 0; i < 1; i++) {
 
 				dd.clear();
@@ -51,8 +54,7 @@ public class DaltonDraw {
 				dd.drawString("Hello Kitty", 200, 200, 20, Color.green);
 				dd.drawButton("helloworld"+i, 300, 30, 200+i, 200);
 				dd.drawImage("src/images/Hello_Kitty_Pink.jpg", 100, 100, 30, 30);
-
-
+				
 			}
 			dd.render();
 			// System.out.println(dd.listen());
@@ -95,7 +97,6 @@ public class DaltonDraw {
 	}
 
 	public ApplicationFrame frame;
-	public static int frameSize = 600;
 	private CountDownLatch buttonLatch = null;
 	private String lastEvent;
 	private Color background = new Color(238,238,238);
@@ -104,6 +105,11 @@ public class DaltonDraw {
 	private List<Drawable> drawList = new ArrayList<Drawable>();
 	private static Map<String, BufferedImage> memImages = new HashMap<String, BufferedImage>();
 
+	public void setSize(int size) {
+		frame.frameSize= size;
+		frame.sizeAndCenter();
+	}
+	
 	/**
 	 * render
 	 * this draws all the things in the frame
@@ -113,7 +119,7 @@ public class DaltonDraw {
 		Graphics2D g2 = (Graphics2D)frame.getBufferStrategy().getDrawGraphics();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setBackground(background);
-		g2.clearRect(0, 0, 800, 800);
+		g2.clearRect(0, 0, frame.getWidth()+100, frame.getHeight() +100);
 		for(Drawable drawme : drawList) {
 			drawme.draw(g2);
 		}
@@ -126,6 +132,8 @@ public class DaltonDraw {
 		}
 	}
 
+	
+	
 	/**
 	 * render
 	 * this draws all the things in the frame
@@ -291,7 +299,7 @@ public class DaltonDraw {
 	 * @param y the y coordinate of the frame
 	 * @return the color of that pixel
 	 */
-	public static Color getPixel(String filename, int x, int y) {
+	public Color getPixel(String filename, int x, int y) {
 
 		try {
 			BufferedImage bi;
@@ -302,8 +310,8 @@ public class DaltonDraw {
 			else {
 				bi = memImages.get(filename);
 			}
-			int x_scale = (int)((double)x * ((double)bi.getWidth()/(double)ApplicationFrame.FRAMESIZE));
-			int y_scale = (int)((double)y * ((double)bi.getHeight()/(double)ApplicationFrame.FRAMESIZE));
+			int x_scale = (int)((double)x * ((double)bi.getWidth()/(double)frame.getWidth()));
+			int y_scale = (int)((double)y * ((double)bi.getHeight()/(double)frame.getHeight()));
 			//System.err.println(x_scale + "|" + y_scale);
 
 			return(new Color(bi.getRGB(x_scale, y_scale))); 
@@ -549,7 +557,7 @@ public class DaltonDraw {
 
 	class ApplicationFrame extends Frame {
 		private static final long serialVersionUID = 1L;
-		public static final int FRAMESIZE = 600;
+		public int frameSize = 600;
 
 		public ApplicationFrame() { this("ApplicationFrame v1.0"); }
 
@@ -587,8 +595,7 @@ public class DaltonDraw {
 
 		protected void createUI()
 		{
-			setSize(FRAMESIZE, FRAMESIZE+25); // include the header
-			center();
+			sizeAndCenter();
 
 			addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
@@ -599,8 +606,9 @@ public class DaltonDraw {
 			});
 		}
 
-		public void center()
+		public void sizeAndCenter()
 		{
+			setSize(frameSize, frameSize+25); // include the header
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			Dimension frameSize = getSize();
 			int x = (screenSize.width - frameSize.width)/ 2;
