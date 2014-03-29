@@ -1,5 +1,8 @@
 package org.dalton;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -13,19 +16,31 @@ import javax.sound.sampled.SourceDataLine;
 
 public class DaltonSound {
 	public static void main(String[] args){
+		//vibrato:
 		DaltonSound ds = new DaltonSound();
-
 		ds.start();
-		ds.setWaveform(Waveform.TRIANGLE);
-		ds.sustain(2000);
 		ds.setWaveform(Waveform.SINE);
-		ds.sustain(2000);
-		ds.setWaveform(Waveform.SQUARE);
-		ds.sustain(2000);
-		ds.setWaveform(Waveform.SAWTOOTH);
-		ds.sustain(2000);
-
-		ds.stop();
+		for (int i = 100; i >0; i--) {
+			ds.setVolume(.9, 20*100/i);
+			ds.setFrequency(443, 20*100/i);
+			ds.setVolume(.8, 20*100/i);
+			ds.setFrequency(437, 20*100/i);
+		}
+		
+		
+		//		DaltonSound ds = new DaltonSound();
+//
+//		ds.start();
+//		ds.setWaveform(Waveform.TRIANGLE);
+//		ds.sustain(2000);
+//		ds.setWaveform(Waveform.SINE);
+//		ds.sustain(2000);
+//		ds.setWaveform(Waveform.SQUARE);
+//		ds.sustain(2000);
+//		ds.setWaveform(Waveform.SAWTOOTH);
+//		ds.sustain(2000);
+//
+//		ds.stop();
 		
 //		List<DaltonSound> ds = new ArrayList<DaltonSound>();
 //
@@ -44,11 +59,13 @@ public class DaltonSound {
 //		}
 //		
 //		DaltonSound ad = new DaltonSound();
+//		ad.setFrequency(700);
+//		ad.setVolume(1);
 //		for (int j = 0; j < 10; j++) {	
 //			ad.adsr(j*100);
 //		}
-//		
-//		
+		
+		
 //		ds.get(0).sustain(2000);
 //
 //		for (DaltonSound d : ds) {
