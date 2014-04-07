@@ -283,6 +283,7 @@ Instrument: Gunshot bank #0 preset #127
 	 */
 	public void removeAll() {
 		notes.clear();
+		beatCounter=0;
 	}
 
 	/**

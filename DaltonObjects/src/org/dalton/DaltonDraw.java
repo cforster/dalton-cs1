@@ -342,7 +342,7 @@ public class DaltonDraw {
 				if(e.getButton() == 1) {
 					if(clickListen) {
 						lastEvent = e.getX() + "," + e.getY();
-						buttonLatch.countDown();
+						if(buttonLatch!=null) buttonLatch.countDown();
 					}
 					System.err.println("X: " + e.getX() +", Y: " + e.getY());
 
