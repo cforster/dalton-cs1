@@ -11,7 +11,6 @@ import net.jeremybrooks.knicker.WordApi;
 import net.jeremybrooks.knicker.WordsApi;
 import net.jeremybrooks.knicker.dto.Definition;
 import net.jeremybrooks.knicker.dto.Example;
-import net.jeremybrooks.knicker.dto.Phrase;
 import net.jeremybrooks.knicker.dto.TokenStatus;
 import net.jeremybrooks.knicker.dto.Word;
 
@@ -30,7 +29,7 @@ public class DaltonWord {
 	private List<Definition> myDefs;
 	private Word myWord;
 	private String myExam="";
-	private List<Phrase> myPhrases;
+//	private List<Phrase> myPhrases;
 	public static long backoff;
 
 	/**

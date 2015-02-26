@@ -11,7 +11,7 @@ public class DaltonSay {
 	public static void main(String[] args) {
 		DaltonSay ds = new DaltonSay();
 		ds.setVoice(AGNES);
-		ds.say("hello world");
+		ds.say("Hello Dalton Objects");
 	}
 	
 	private String voice;

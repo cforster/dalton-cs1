@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,18 +24,20 @@ import org.xml.sax.SAXException;
 
 public class DaltonStock {
 	public static void main(String[] args) throws InterruptedException {
-		DaltonStock ds = new DaltonStock("ibm");
-		System.out.println(ds);
-		Thread.sleep(2000);
-		ds.refresh();
+//		DaltonStock ds = new DaltonStock("ibmnhjk");
+//		System.out.println(ds);
+//		Thread.sleep(2000);
+//		ds.refresh();
 
-		System.out.println(DaltonStock.symbolLookup("International Business Machines"));
+//		System.out.println(DaltonStock.symbolLookup("International Business Machines"));
+//		DaltonStock ds = new DaltonStock();
+//		System.out.println(ds);
 	}
 
 	/**
 	 * give the symbol for a company
 	 * @param input the search term (company name)
-	 * @return the symbol
+	 * @return the symbol, empty if nothing found
 	 */
 	public static String symbolLookup(String input) {
 		String url= "";
@@ -50,6 +53,7 @@ public class DaltonStock {
 			doc = dBuilder.parse(is);
 			doc.getDocumentElement().normalize();
 			Node res = doc.getElementsByTagName("LookupResult").item(0);
+			if(res==null) return "";
 			if (res.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) res;
 				String sym = eElement.getElementsByTagName("Symbol").item(0).getTextContent();
@@ -101,19 +105,19 @@ public class DaltonStock {
 		return null;
 	}
 
-	String name;
-	String symbol;
-	double lastprice;
-	double change;
-	double changepercent;
-	String timestamp;
-	long marketcap;
-	int volume;
-	double changeytd;
-	double changepercentytd;
-	double high;
-	double low;
-	double open;
+	public String name = "";
+	public String symbol = "";
+	public double lastprice;
+	public double change;
+	public double changepercent;
+	public String timestamp;
+	public long marketcap;
+	public int volume;
+	public double changeytd;
+	public double changepercentytd;
+	public double high;
+	public double low;
+	public double open;
 
 	public String toString() {
 		String ret = "";
@@ -128,7 +132,13 @@ public class DaltonStock {
 	 */
 	public void refresh() {
 		Document doc = fetchQuote(symbol);
+		//if(doc==null) return;
 		Node quote = doc.getElementsByTagName("StockQuote").item(0);
+		if(quote==null) {
+			System.err.println("stock not found");
+			return;
+		}
+		
 		if (quote.getNodeType() == Node.ELEMENT_NODE) {
 
 			Element eElement = (Element) quote;
@@ -153,6 +163,24 @@ public class DaltonStock {
 	 */
 	public DaltonStock(String symbol) {
 		this.symbol = symbol;
+		refresh();
+	}
+
+	/**
+	 * get a random stock
+	 */
+	public DaltonStock() {
+		Random gen = new Random();
+		String sym="";
+		do{
+			//get a random 3 letters:
+			for (int i = 0; i < 3; i++) {
+				sym+=""+(char)('a'+gen.nextInt(22));
+			}
+			//search for that:
+			sym = DaltonStock.symbolLookup(sym);
+		}while(sym.length()==0);
+		this.symbol = sym;
 		refresh();
 	}
 }

@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -21,9 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import javax.imageio.ImageIO;
@@ -39,7 +38,7 @@ public class DaltonDraw {
 	public static void main(String[] args) {
 		DaltonDraw dd = new DaltonDraw();
 		Random gen = new Random();
-		int k = 200;
+//		int k = 200;
 		dd.setSize(300);
 		while(true)
 		{

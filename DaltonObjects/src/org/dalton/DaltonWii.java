@@ -1,12 +1,12 @@
 package org.dalton;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import javax.bluetooth.BluetoothConnectionException;
 
 import org.wiigee.event.ButtonListener;
 import org.wiigee.event.ButtonPressedEvent;
@@ -26,19 +26,42 @@ import org.wiimote.filter.RotationThresholdFilter;
 public class DaltonWii {
 	public static void main(String[] args) {
 		//declarations:
-		DaltonWii dw = new DaltonWii("00191DD44482");
-		
+		DaltonWii dw = new DaltonWii("001B7A424FDD");
+		dw.setLED(1,1,1,1);
+		DaltonSay voice = new DaltonSay();
+
 		while(true) {
 			String event = dw.next();
+			voice.say(event);
 			System.out.println(event);
 			if(event.equalsIgnoreCase("1")) System.out.println("you so square");
+			if(event.equals("2")) {
+				dw.close();
+				return;
+			}
 		}
-		
 	}
+
 	private String lastEvent = "";
 	private Wiimote wm;
 	private CountDownLatch lastEventLatch;
+	private boolean releaseOn = false;
 	//L2CAPConnection l2;
+
+	/**
+	 * choose whether to receive button release events
+	 * @param on true if you want to receive release events, false if not.
+	 */
+	public void receiveReleaseEvents(boolean on) {
+		releaseOn = on;
+	}
+
+	/**
+	 * close the wiimote connection to end the program.
+	 */
+	public void close() {
+		wm.disconnect();
+	}
 
 	/**
 	 * This function returns the next event the user submits.  There are two types, a button press or a gesture.  <br>
@@ -57,7 +80,7 @@ public class DaltonWii {
 		}
 		return lastEvent;
 	}
-	
+
 	/**
 	 * This function returns the next event the user submits.  It will only wait the given number of milliseconds.  There are two types, a button press or a gesture.  <br>
 	 * <br>
@@ -68,6 +91,7 @@ public class DaltonWii {
 	 * @return a String response based on the event.
 	 */
 	public String next(long timeout) {
+		lastEvent = null;
 		synchronized(this) { lastEventLatch = new CountDownLatch(1); }
 		try {
 			lastEventLatch.await(timeout, TimeUnit.MILLISECONDS);
@@ -76,7 +100,7 @@ public class DaltonWii {
 		}
 		return lastEvent;
 	}
-	
+
 
 	/**
 	 * turn on the LEDs on the wiimote, 1 is on and 0 is off.
@@ -122,7 +146,7 @@ public class DaltonWii {
 	 * @param address the bluetooth address for the wiimote
 	 */
 	public DaltonWii(String address) {
-		this(address, "defaultgestures");
+		this(address, null);
 	}
 
 	/**
@@ -134,17 +158,32 @@ public class DaltonWii {
 		System.setProperty("bluecove.jsr82.psm_minimum_off", "true");
 		System.setProperty("PROPERTY_DEBUG_STDOUT", "false"	);
 
-		try {
-			wm = new Wiimote(address, true, true);
-			wm.addAccelerationFilter(new HighPassFilter());
-			wm.addRotationFilter(new RotationThresholdFilter(0.5));
-			wm.addButtonListener(new ButtonListen());
-			wm.addGestureListener(new GestureListen(gesturefile));
-			//l2 = wm.getReceiveConnection();
-			Log.setLevel(Log.OFF);
-		} catch (IOException e) {
-			System.err.println("could not set up wiimote");
-			e.printStackTrace();
+		int tries = 3; //if an old version is running, the 
+		//first time it breaks, the second time it works.
+		while(tries-->0) {
+			try {
+				wm = new Wiimote(address, true, true);
+				wm.addAccelerationFilter(new HighPassFilter());
+				wm.addRotationFilter(new RotationThresholdFilter(0.5));
+				wm.addButtonListener(new ButtonListen());
+				if(gesturefile==null) wm.addGestureListener(new GestureListen());
+				else wm.addGestureListener(new GestureListen(gesturefile));
+				//l2 = wm.getReceiveConnection();
+				Log.setLevel(Log.OFF);
+				break;
+			} catch (BluetoothConnectionException e) {
+				System.err.println("bluetooth failure, try power cycling your bluetooth");
+			} catch (IOException e) {
+				if(tries==0) {
+					System.err.println("could not set up wiimote");
+					e.printStackTrace();
+				}
+			} 
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -157,33 +196,49 @@ public class DaltonWii {
 				lastEvent = this.gestureMeanings.elementAt(event.getId());
 			} else {
 				System.err.println("No Gesture recognized!");
-			}			
+			}	
+			lastEventLatch.countDown();
 		}
 
-		public GestureListen(String gesturefile) {
-			BufferedReader in = null;
-			try {
-				// open the gesture set file
-				File f = new File("gestures/" +gesturefile);
-				in = new BufferedReader(new FileReader(f));
-
-				// load the single gestures
-				String line;
-				while(in.ready()) {
-					line = in.readLine();
-					wm.loadGesture("gestures/"+ line);
-					this.gestureMeanings.add(line);
-				}
-			} catch (IOException ex) {
-				System.err.println("could not find gestures files");
-			} finally {
-				try {
-					in.close();
-				} catch (IOException ex) {
-					System.err.println("error closing file");
-				}
+		public GestureListen() {
+			wm.loadGesture("gestures/square.txt");
+			wm.loadGesture("gestures/circle.txt");
+			wm.loadGesture("gestures/down.txt");
+			wm.loadGesture("gestures/left.txt");
+			wm.loadGesture("gestures/right.txt");
+			wm.loadGesture("gestures/poke.txt");
+			wm.loadGesture("gestures/up.txt");
+			this.gestureMeanings.add("square");
+			this.gestureMeanings.add("circle");
+			this.gestureMeanings.add("down");
+			this.gestureMeanings.add("left");
+			this.gestureMeanings.add("right");
+			this.gestureMeanings.add("poke");
+			this.gestureMeanings.add("up");			
+		}
+		
+		public GestureListen(String gestureDirectory) {
+			this();
+			addGestures(gestureDirectory);
+		}
+		
+		public void addGestures(String gestureDirectory) {
+			if(!gestureDirectory.endsWith("/")) gestureDirectory+="/";
+			String[] names = (new File(gestureDirectory)).list();
+			if(names.length==0) {
+				System.err.println("could not find gestures in " + gestureDirectory);
+				return;
+			}
+			for (int i = 0; i < names.length; i++) {
+				int chop = names[i].indexOf(".txt");
+				if(chop>0) { names[i] = names[i].substring(0, chop); }
+				wm.loadGesture(gestureDirectory+ names[i] +".txt");
+				this.gestureMeanings.add(names[i]);
 			}
 		}
+
+
+
 	}
 
 	class ButtonListen implements ButtonListener {
@@ -202,11 +257,12 @@ public class DaltonWii {
 			case Wiimote.BUTTON_PLUS: lastEvent= "PLUS"; break;
 			default: return;
 			}
-			lastEventLatch.countDown();
+			if(lastEventLatch!=null) lastEventLatch.countDown();
 		}
 
 		@Override
 		public void buttonReleaseReceived(ButtonReleasedEvent event) {
+			if(!releaseOn) return; // only do this if we want release events.
 			switch(event.getButton()) {
 			case Wiimote.BUTTON_1: lastEvent= "1_release"; break;
 			case Wiimote.BUTTON_2: lastEvent= "2_release"; break;
@@ -221,7 +277,7 @@ public class DaltonWii {
 			default: return;
 
 			}
-			lastEventLatch.countDown();
+			if(lastEventLatch!=null) lastEventLatch.countDown();
 		}
 	}
 }

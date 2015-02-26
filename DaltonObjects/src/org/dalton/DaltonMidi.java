@@ -321,7 +321,48 @@ Instrument: Gunshot bank #0 preset #127
 	public void play() {
 		play(notes.size()/2);
 	}
+	
+	/**
+	 * play a specific note
+	 * @param note the note to play
+	 */
+	public void playNote(int note) {
+		addNote(note);
+		playAndRemove();
+	}
 
+	/**
+	 * play and remove notes
+	 */
+	public void playAndRemove() {
+		play();
+		removeAll();
+	}
+	
+	/**
+	 * play the first num notes and remove those notes
+	 * @param num 
+	 */
+	public void playAndRemove(int num) {
+		play(num);
+		int beatDecrease = 0;
+		if(num*2>notes.size()) {
+			removeAll();
+			return;
+		}
+		for (int i = 0; i < num; i++) {
+			MidiEvent start = notes.get(0);
+			MidiEvent end = notes.get(1);
+			beatDecrease += end.getTick() - start.getTick();
+			notes.remove(0);
+			notes.remove(0);
+		}
+		beatCounter-=beatDecrease;
+		for (MidiEvent note : notes) {
+			note.setTick(note.getTick()-beatDecrease);
+		}
+	}
+	
 	/**
 	 * play the first num notes
 	 * @param num number of notes to play
