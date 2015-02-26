@@ -14,18 +14,18 @@ import javax.sound.sampled.SourceDataLine;
 public class DaltonSound {
 	public static void main(String[] args){
 		//vibrato:
-//		DaltonSound ds = new DaltonSound();
-//		ds.start();
-//		ds.setWaveform(Waveform.SINE);
-//		for (int i = 100; i >0; i--) {
-//			ds.setVolume(.9, 20*100/i);
-//			ds.setFrequency(443, 20*100/i);
-//			ds.setVolume(.8, 20*100/i);
-//			ds.setFrequency(437, 20*100/i);
-//		}
-		
-		
-				DaltonSound ds = new DaltonSound();
+		//		DaltonSound ds = new DaltonSound();
+		//		ds.start();
+		//		ds.setWaveform(Waveform.SINE);
+		//		for (int i = 100; i >0; i--) {
+		//			ds.setVolume(.9, 20*100/i);
+		//			ds.setFrequency(443, 20*100/i);
+		//			ds.setVolume(.8, 20*100/i);
+		//			ds.setFrequency(437, 20*100/i);
+		//		}
+
+
+		DaltonSound ds = new DaltonSound();
 
 		ds.start();
 		ds.setWaveform(Waveform.TRIANGLE);
@@ -38,60 +38,60 @@ public class DaltonSound {
 		ds.sustain(2000);
 
 		ds.stop();
-		
-//		List<DaltonSound> ds = new ArrayList<DaltonSound>();
-//
-//		for (int i = 0; i < 4; i++) {
-//			ds.add(new DaltonSound());
-//		}
-//		
-//		int i = 440;
-//		for (DaltonSound d : ds) {
-//			d.setFrequency(i);
-//			d.setVolume(.3);
-//			d.setWaveform(Waveform.SAWTOOTH);
-//			i*=1.25;
-//			d.start();
-//			d.sustain(500);
-//		}
-//		
-//		DaltonSound ad = new DaltonSound();
-//		ad.setFrequency(700);
-//		ad.setVolume(1);
-//		for (int j = 0; j < 10; j++) {	
-//			ad.adsr(j*100);
-//		}
-		
-		
-//		ds.get(0).sustain(2000);
-//
-//		for (DaltonSound d : ds) {
-//			d.stop();
-//		}
-//			
-//		ds.start();
-//		ds.setWaveform(Waveform.SQUARE);
-//		for (double i = 0; i < 1.0; i+=.1) {
-//			ds.setVolume(i);
-//			ds.sustain(500);
-//		}
-//		ds.setVolume(.6);
-//		ds.sustain(2000);
-//
-//		ds.sustain(2000);
-//		ds.setWaveform(Waveform.SAWTOOTH);
-//		ds.sustain(2000);
-//		ds.setFrequency(200,2000);
-//		ds.setFrequency(700, 1000);
-//		ds.setFrequency(400);
-//		ds.sustain(3000);
-//		ds.stop();
-//		ds.setWaveform(Waveform.SQUARE);
-//		for (int i = 0; i < 10; i++) {
-//			ds.setFrequency(440+i*30);
-//			ds.adsr();
-//			ds.sustain(500);
-//		}
+
+		//		List<DaltonSound> ds = new ArrayList<DaltonSound>();
+		//
+		//		for (int i = 0; i < 4; i++) {
+		//			ds.add(new DaltonSound());
+		//		}
+		//		
+		//		int i = 440;
+		//		for (DaltonSound d : ds) {
+		//			d.setFrequency(i);
+		//			d.setVolume(.3);
+		//			d.setWaveform(Waveform.SAWTOOTH);
+		//			i*=1.25;
+		//			d.start();
+		//			d.sustain(500);
+		//		}
+		//		
+		//		DaltonSound ad = new DaltonSound();
+		//		ad.setFrequency(700);
+		//		ad.setVolume(1);
+		//		for (int j = 0; j < 10; j++) {	
+		//			ad.adsr(j*100);
+		//		}
+
+
+		//		ds.get(0).sustain(2000);
+		//
+		//		for (DaltonSound d : ds) {
+		//			d.stop();
+		//		}
+		//			
+		//		ds.start();
+		//		ds.setWaveform(Waveform.SQUARE);
+		//		for (double i = 0; i < 1.0; i+=.1) {
+		//			ds.setVolume(i);
+		//			ds.sustain(500);
+		//		}
+		//		ds.setVolume(.6);
+		//		ds.sustain(2000);
+		//
+		//		ds.sustain(2000);
+		//		ds.setWaveform(Waveform.SAWTOOTH);
+		//		ds.sustain(2000);
+		//		ds.setFrequency(200,2000);
+		//		ds.setFrequency(700, 1000);
+		//		ds.setFrequency(400);
+		//		ds.sustain(3000);
+		//		ds.stop();
+		//		ds.setWaveform(Waveform.SQUARE);
+		//		for (int i = 0; i < 10; i++) {
+		//			ds.setFrequency(440+i*30);
+		//			ds.adsr();
+		//			ds.sustain(500);
+		//		}
 
 	}
 
@@ -103,13 +103,13 @@ public class DaltonSound {
 		SINE, SQUARE, SAWTOOTH, TRIANGLE
 	}
 	public final int SAMPLERATE = 44100;
-	
+
 	private SoundRunner sr;
 	private Waveform form = Waveform.SINE;
 	private boolean stop = false;
 	private double frequency = 440;
 	private double volume = 0.7;
-	
+
 	public void sustain(long millis) {
 		try {
 			Thread.sleep(millis);
@@ -118,13 +118,13 @@ public class DaltonSound {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void adsr(long millis) {
-		
-		
+
+
 		adsr((long)(0.02*millis), .8, (long)(0.15*millis), .6, (long)(0.5*millis), .5, (long)(0.33*millis));
 	}
-	
+
 	public void adsr(long amillis, double a, long dmillis, double d, long smillis, double s, long rmillis) {
 		start();
 		setVolume(0);
@@ -141,7 +141,7 @@ public class DaltonSound {
 		this.volume = volume;
 		if(sr!=null) sr.setVolume(volume);
 	}
-	
+
 	public void setVolume(double volume, long millis) {
 		//if it's not running, set the frequency and wait millis:
 		if(sr==null) {
@@ -223,12 +223,12 @@ public class DaltonSound {
 		SourceDataLine line;
 		double t;
 
-		
-		
+
+
 		public synchronized void setVolume(double volume) {
 			this.newvolume = volume;
 		}
-		
+
 		public synchronized void setFrequency(double frequency) {
 			t*=this.frequency/frequency;
 			this.frequency = frequency;
@@ -261,7 +261,7 @@ public class DaltonSound {
 
 		public synchronized void fillBuffer(byte[] b) {
 			double volumedelta = (newvolume-volume)/b.length;
-			
+
 			for (int i = 0; i < b.length; i+=2) {
 				short sample=0;
 				double pos = t++*frequency/(double)SAMPLERATE;
@@ -287,7 +287,7 @@ public class DaltonSound {
 
 				b[i] = (byte)(sample >> 8);
 				b[i+1] = (byte)(sample % 256);
-//				System.out.println(t + ":" +sample + " " + b[i] + " " + b[i+1]);
+				//				System.out.println(t + ":" +sample + " " + b[i] + " " + b[i+1]);
 			}
 			volume = newvolume;
 		}
@@ -310,10 +310,10 @@ public class DaltonSound {
 					}
 				}
 			}
-			
-//			//to fade out:
-//			fillBuffer(b);
-//			line.write(b, 0, b.length);
+
+			//			//to fade out:
+			//			fillBuffer(b);
+			//			line.write(b, 0, b.length);
 		}
 
 	}
