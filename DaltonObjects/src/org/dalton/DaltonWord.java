@@ -16,6 +16,7 @@ import sun.audio.*;
 
 /**
  * Get a random word and other information about it.
+ * 
  * @author cforster
  *
  */
@@ -38,6 +39,13 @@ public class DaltonWord {
 	private String part;
 	private static Map<String, String> mwcontent = new HashMap<String, String>();
 
+	/**
+	 * Constructor. Creates a DaltonWord object.
+	 * Sets instance variables word, part, and definition.
+	 * 	word: a randomly selected word from the wordlist file.
+	 * 	part: part of speech, abbreviated
+	 * 	def: defintion of word
+	 */
 	public DaltonWord() {
 		//Waterman's "Reservoir Algorithm"
 		String result = null;		
@@ -59,22 +67,44 @@ public class DaltonWord {
 		def = result.substring(sspace+2);
 	}
 
+	/**
+	 * Returns the randomly selected word.
+	 */
 	public String getWord() {
 		return word;
 	}
 
+	/**
+	 * Returns the part of speech of the word attribute that was 
+	 * set when the object was created.
+	 */
 	public String getPart() {
 		return part;
 	}
 
+	/**
+	 * Returns the part of speech of the word  attribute that was 
+	 * set when the object was created.
+	 */
 	public String getDefinition() {
 		return def;
 	}
 
+	/**
+	 * Returns the word  attribute that was 
+	 * set when the object was created.
+	 * 
+	 * See also: getWord()
+	 */
 	public String toString() {
 		return getWord();
 	}
 
+	/**
+	 * Fetch word from www.dictionaryapi.com.
+	 * 
+	 * Sets word attribute to the fetched word. 
+	 */
 	private static void fetch(String word) {
 		String content = "";
 		if(!mwcontent.containsKey(word)) {
@@ -106,7 +136,8 @@ public class DaltonWord {
 	}
 
 	/**
-	 * get the definition of any word
+	 * Get the definition of any word.
+	 * 
 	 * @param word the word to define
 	 * @return the definition
 	 * @throws IOException 
@@ -124,6 +155,13 @@ public class DaltonWord {
 		return "word not found";
 	}
 
+	/**
+	 * Get the IPA pronunciation of any word.
+	 * 
+	 * @param word the word to pronouce.
+	 * @return the definition
+	 * @throws MalformedURLException 
+	 */
 	@SuppressWarnings("restriction")
 	public static String pronounce(String word)
 	{
@@ -161,6 +199,9 @@ public class DaltonWord {
 		return "word not found";
 	}
 
+	/**
+	 * Helper function. Set the word attribute.
+	 */
 	public static String content(String word) {
 		fetch(word);
 		return mwcontent.get(word);
