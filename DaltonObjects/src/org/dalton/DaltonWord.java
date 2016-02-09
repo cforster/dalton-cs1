@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import sun.audio.*;
 
 /**
- * get a random word and other information about it.
+ * Get a random word and other information about it.
  * @author cforster
  *
  */
